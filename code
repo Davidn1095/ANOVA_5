@@ -1,0 +1,47 @@
+# Creating the data frame
+data <- data.frame(
+  'c1' = c(8.3, 7.6, 8.4, 8.3),
+  'c2' = c(7.4, 7.1, NA, NA),
+  'c3' = c(8.1, 6.4, NA, NA),
+  'c4' = c(7.9, 8.5, 10, NA),
+  'c5' = c(7.1, NA, NA, NA)
+)
+
+# Calculating the Total Sum of Squares (SSTotal)
+sum_squares <- sum(sapply(data, function(x) sum(x^2, na.rm = TRUE)))
+total_sum <- sum(sapply(data, sum, na.rm = TRUE))^2
+N <- sum(sapply(data, function(x) length(na.omit(x))))
+SSTotal <- sum_squares - (total_sum / N)
+print(SSTotal)
+
+# Calculating the Sum of Squares Between Treatments (SSTreatments)
+sum_squares_treatments <- sum(sapply(data, function(x) sum(na.omit(x))^2 / length(na.omit(x))))
+total_sum_squared <- total_sum^2 / N
+SSTratamientos <- sum_squares_treatments - total_sum_squared
+print(SSTratamientos)
+
+# Calculating the Sum of Squares Within (SSError)
+SSError <- SSTotal - SSTratamientos
+print(SSError)
+
+# Assuming 'SSBetween' has been calculated and 'k' (number of groups) is defined
+# Calculating degrees of freedom
+df_between <- k - 1
+df_error <- N - k
+
+# Calculating Mean Squares (MS or CM)
+CM_between <- SSBetween / df_between
+CM_error <- SSError / df_error
+
+# Calculating F-value
+F_value <- CM_between / CM_error
+
+# Creating the ANOVA table
+anova_table <- data.frame(
+  'Fuente de variación' = c('Tratamientos (Entre)', 'Errores (Dentro)', 'Total'),
+  'S.S.' = c(SSBetween, SSError, SSTotal),
+  'g.l.' = c(df_between, df_error, NA), # NA for total as CM is not calculated for total
+  'C.M.' = c(CM_between, CM_error, NA), # NA for total as CM is not calculated for total
+  'F' = c(F_value, NA, NA) # NA for errors and total where F-value is not applicable
+)
+print(anova_table)
